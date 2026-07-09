@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#3b5bfd" />
+    <title>Kayel · find your people, meet your people</title>
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+      :root {
+        --blue: #3b5bfd;
+        --blue-deep: #1f33c4;
+        --ink: #0a0c1b;
+        --muted: #5b6075;
+        --bg: #f7f8fb;
+        --card: #ffffff;
+        --line: #e9ebf2;
+        --sans: "General Sans", -apple-system, system-ui, sans-serif;
+        --r: 22px;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--ink);
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; text-decoration: none; }
+      .wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+      /* ---------- nav ---------- */
+      nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 24px; max-width: 1140px; margin: 0 auto;
+        transition: all .3s ease;
+      }
+      nav.scrolled {
+        background: rgba(247,248,251,.82); backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--line);
+        top: 0; padding: 12px 24px; max-width: 100%;
+      }
+      nav.scrolled .nav-inner { max-width: 1140px; margin: 0 auto; width: 100%;
+        display: flex; align-items: center; justify-content: space-between; }
+      .nav-inner { display: contents; }
+      .logo { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 20px; letter-spacing: -.02em; }
+      .logo .bolt {
+        width: 30px; height: 30px; border-radius: 9px;
+        background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+        display: grid; place-items: center; color: #fff; font-size: 16px;
+        box-shadow: 0 6px 16px rgba(59,91,253,.35);
+      }
+      .nav-cta {
+        background: var(--ink); color: #fff; font-weight: 600; font-size: 14px;
+        padding: 10px 18px; border-radius: 999px; transition: transform .15s ease, background .2s;
+      }
+      .nav-cta:hover { transform: translateY(-1px); background: var(--blue); }
+
+      /* ---------- hero ---------- */
+      .hero { position: relative; padding: 150px 0 60px; overflow: hidden; }
+      .blob {
+        position: absolute; border-radius: 50%; filter: blur(60px); opacity: .5; z-index: 0;
+        animation: floatblob 14s ease-in-out infinite;
+      }
+      .blob.b1 { width: 420px; height: 420px; background: #b9c4ff; top: -80px; left: -120px; }
+      .blob.b2 { width: 360px; height: 360px; background: #ffd9c2; top: 120px; right: -100px; animation-delay: -5s; }
+      .blob.b3 { width: 300px; height: 300px; background: #c8f0d8; bottom: -120px; left: 40%; animation-delay: -9s; }
+      @keyframes floatblob { 0%,100% { transform: translate(0,0) scale(1);} 50% { transform: translate(20px,-30px) scale(1.08);} }
+
+      .hero-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: #fff; border: 1px solid var(--line); border-radius: 999px;
+        padding: 7px 14px 7px 8px; font-size: 13px; font-weight: 500; color: var(--muted);
+        box-shadow: 0 4px 14px rgba(10,12,27,.04);
+      }
+      .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #1fc16b; box-shadow: 0 0 0 4px rgba(31,193,107,.18); animation: pulse 2s infinite; }
+      @keyframes pulse { 0%,100%{ box-shadow: 0 0 0 4px rgba(31,193,107,.18);} 50%{ box-shadow: 0 0 0 7px rgba(31,193,107,.05);} }
+      h1 {
+        font-size: clamp(40px, 6vw, 68px); line-height: 1.02; letter-spacing: -.035em;
+        margin: 20px 0 18px; font-weight: 700;
+      }
+      h1 .grad { background: linear-gradient(120deg, var(--blue), #7c4dff 60%, #ff7a59); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .sub { font-size: 18px; color: var(--muted); max-width: 470px; line-height: 1.55; }
+      .hero-form { display: flex; gap: 10px; margin-top: 30px; max-width: 440px; }
+      .hero-form input {
+        flex: 1; font-family: var(--sans); font-size: 15px; color: var(--ink);
+        background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 15px 18px; outline: none;
+        transition: border-color .2s, box-shadow .2s;
+      }
+      .hero-form input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(59,91,253,.12); }
+      .btn-primary {
+        font-family: var(--sans); font-weight: 600; font-size: 15px; white-space: nowrap;
+        background: linear-gradient(135deg, var(--blue), var(--blue-deep)); color: #fff;
+        border: none; border-radius: 14px; padding: 15px 26px; cursor: pointer;
+        box-shadow: 0 10px 24px rgba(59,91,253,.32); transition: transform .15s ease, box-shadow .2s;
+      }
+      .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(59,91,253,.42); }
+      .hero-note { display: flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 14px; color: var(--muted); font-weight: 500; }
+      .hero-note .spark { color: var(--blue); }
+
+      /* ---------- hero event-card cluster (no photos - pure CSS) ---------- */
+      .cluster { position: relative; height: 626px; }
+      .ecard {        position: absolute; width: 304px; background: #fff; border-radius: 20px;
+        padding: 16px; border: 1px solid var(--line);
+        box-shadow: 0 18px 44px rgba(10,12,27,.14);
+        will-change: transform; transition: transform .25s cubic-bezier(.2,.8,.3,1);
+      }
+      .ec-top { display: flex; align-items: center; gap: 11px; }
+      .ec-emoji { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; font-size: 22px;
+        background: linear-gradient(135deg,#eef1ff,#e3e8ff); }
+      .ec-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; }
+      .ec-place { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+      .ec-when { margin: 13px 0 12px; font-size: 13px; font-weight: 600; color: var(--ink);
+        background: var(--bg); border-radius: 10px; padding: 9px 12px; }
+      .ec-foot { display: flex; align-items: center; gap: 10px; }
+      .ec-dots { display: flex; }
+      .ec-dots i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; margin-left: -8px; display: block; }
+      .ec-dots i:first-child { margin-left: 0; }
+      .ec-going { font-size: 12px; color: var(--muted); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .ec-plus { font-size: 12.5px; font-weight: 700; color: var(--blue); background: rgba(59,91,253,.1); border: none; border-radius: 999px; padding: 7px 11px; cursor: pointer; transition: background .2s, color .2s, transform .12s; }
+      .ec-plus:active { transform: scale(.88); }
+      .ec-plus.added { background: #e85d8a; color: #fff; }
+      .ec-join { font-size: 12.5px; font-weight: 700; color: #fff; background: var(--blue); border: none;
+        border-radius: 999px; padding: 7px 13px; cursor: pointer; }
+      /* staircase layout — every card's name row stays clear of its neighbours */
+      .ecard.c1 { top: 0; left: 10px; z-index: 3; transform: rotate(-4deg); }
+      .ecard.c2 { top: 152px; right: 0; z-index: 4; transform: rotate(3deg); }
+      .ecard.c3 { top: 304px; left: 20px; z-index: 5; transform: rotate(-3deg); }
+      .ecard.c4 { top: 456px; right: 14px; z-index: 6; transform: rotate(4deg); }
+
+      .float-badge {
+        position: absolute; z-index: 6; background: #fff; border-radius: 14px; padding: 10px 14px;
+        box-shadow: 0 12px 28px rgba(10,12,27,.16); font-size: 13px; font-weight: 600;
+        display: flex; align-items: center; gap: 9px; animation: bob 5s ease-in-out infinite;
+      }
+      .float-badge .ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 15px; }
+      .fb1 { top: 8px; right: 24px; }
+      .fb1 .ic { background: linear-gradient(135deg,#1fc16b,#0e9f54); }
+      .fb2 { bottom: 4px; left: 0; animation-delay: -2.5s; }
+      .fb2 .ic { background: linear-gradient(135deg,var(--blue),var(--blue-deep)); }
+      @keyframes bob { 0%,100%{ transform: translateY(-6px);} 50%{ transform: translateY(6px);} }
+
+      /* ---------- marquee: scrolling community chips ---------- */
+      .marquee { padding: 46px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; overflow: hidden; }
+      .marquee-label { text-align: center; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); margin-bottom: 24px; }
+      .track { display: flex; gap: 14px; width: max-content; animation: scroll 26s linear infinite; }
+      .marquee:hover .track { animation-play-state: paused; }
+      @keyframes scroll { to { transform: translateX(-50%); } }
+      .chip {
+        display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+        background: var(--bg); border: 1px solid var(--line); border-radius: 999px;
+        padding: 11px 20px; font-size: 15px; font-weight: 600;
+        cursor: pointer; user-select: none; transition: transform .15s cubic-bezier(.2,1.4,.4,1), border-color .15s, box-shadow .15s;
+      }
+      .chip:hover { transform: translateY(-3px) scale(1.05); border-color: var(--blue); box-shadow: 0 10px 22px rgba(59,91,253,.14); }
+      .chip:active { transform: scale(.92); }
+      .chip .e { font-size: 17px; }
+
+      /* ---------- sections ---------- */
+      section.block { padding: 90px 0; }
+      .eyebrow { color: var(--blue); font-weight: 600; font-size: 14px; letter-spacing: .04em; text-align: center; }
+      h2 { font-size: clamp(30px, 4.4vw, 46px); letter-spacing: -.03em; text-align: center; margin: 10px auto 14px; max-width: 760px; line-height: 1.08; }
+      .lead { text-align: center; color: var(--muted); font-size: 17px; max-width: 580px; margin: 0 auto; line-height: 1.55; }
+
+      .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; margin-top: 54px; }
+      .step { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 28px; position: relative; transition: transform .25s ease, box-shadow .25s ease; }
+      .step:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(10,12,27,.08); }
+      .step .num { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg,var(--blue),var(--blue-deep)); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 18px; margin-bottom: 16px; }
+      .step h3 { font-size: 19px; letter-spacing: -.02em; margin-bottom: 8px; }
+      .step p { color: var(--muted); font-size: 15px; line-height: 1.55; }
+
+      /* the +1 step is the hero feature - give it a glow + a living badge */
+      .step.feature {
+        background: linear-gradient(160deg, #f0f3ff, #ffffff 60%);
+        border: 1.5px solid #c7d0ff;
+        box-shadow: 0 20px 44px rgba(59,91,253,.16);
+      }
+      .step.feature::before {
+        content: "★ SIGNATURE MOVE"; position: absolute; top: 16px; right: 16px;
+        font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--blue);
+        background: #fff; border: 1px solid #c7d0ff; border-radius: 999px; padding: 4px 9px;
+      }
+      .plus-badge {
+        display: inline-flex; align-items: center; gap: 12px; margin: 4px 0 14px;
+      }
+      .plus-chip {
+        font-size: 26px; font-weight: 700; color: #fff; line-height: 1;
+        background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+        border-radius: 16px; padding: 14px 20px; letter-spacing: -.02em;
+        box-shadow: 0 10px 22px rgba(59,91,253,.4);
+        animation: plusPulse 2.4s ease-in-out infinite;
+      }
+      @keyframes plusPulse {
+        0%, 100% { transform: translateY(0) rotate(-3deg); box-shadow: 0 10px 22px rgba(59,91,253,.4); }
+        50% { transform: translateY(-6px) rotate(-3deg); box-shadow: 0 18px 30px rgba(59,91,253,.5); }
+      }
+      .plus-cap { font-size: 13px; font-weight: 600; color: var(--blue); }
+      .step.feature p b { color: var(--ink); }
+
+      /* ---------- for community leaders ---------- */
+      .leaders { padding: 30px 24px 90px; }
+      .leaders-inner {
+        background: rgba(255,255,255,.55);
+        backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+        border: 1px solid rgba(255,255,255,.9);
+        box-shadow: 0 24px 64px rgba(59,91,253,.1), inset 0 1px 0 rgba(255,255,255,.8);
+        color: var(--ink); border-radius: 34px; padding: 60px 56px; position: relative; overflow: hidden;
+      }
+      .leaders-inner::before {
+        content: ""; position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(135deg, rgba(59,91,253,.06) 0%, rgba(124,77,255,.04) 50%, rgba(255,122,89,.04) 100%);
+      }
+      .leaders-inner h2 { color: var(--ink); max-width: 620px; }
+      .leaders-inner .grad { background: linear-gradient(120deg, var(--blue), #7c4dff 60%, #ff7a59); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .leaders-lead { color: var(--muted); font-size: 17px; line-height: 1.6; max-width: 600px; margin-top: 14px; }
+      .lcards { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin: 40px 0 36px; }
+      .lcard { background: rgba(255,255,255,.7); border: 1px solid rgba(59,91,253,.1); border-radius: 18px; padding: 22px; transition: transform .25s ease, box-shadow .25s ease; }
+      .lcard:hover { transform: translateY(-5px); box-shadow: 0 16px 36px rgba(59,91,253,.12); }
+      .lcard .lic { font-size: 26px; display: block; margin-bottom: 12px; }
+      .lcard b { font-size: 16px; letter-spacing: -.01em; color: var(--ink); }
+      .lcard p { color: var(--muted); font-size: 14px; line-height: 1.55; margin-top: 6px; }
+      .leaders-cta { display: inline-block; text-decoration: none; margin-top: 28px; }
+      .hosts-card { margin-top: 22px; }
+
+      /* ---------- founders strip ---------- */
+      .founders { margin-top: 30px; display: inline-flex; align-items: center; gap: 10px;
+        background: rgba(59,91,253,.07); border: 1px solid rgba(59,91,253,.18);
+        border-radius: 999px; padding: 9px 16px 9px 12px; font-size: 14px; font-weight: 600; color: var(--ink); }
+      .founders .badge { background: var(--blue); color: #fff; font-weight: 700; font-size: 12px;
+        border-radius: 999px; padding: 4px 10px; letter-spacing: .02em; }
+
+      /* ---------- final CTA ---------- */
+      .final { margin: 0 24px 60px; }
+      .final-inner {
+        max-width: 1140px; margin: 0 auto; border-radius: 34px; padding: 70px 30px; text-align: center;
+        background: linear-gradient(135deg, var(--blue) 0%, var(--blue-deep) 60%, #2a1d9c 100%);
+        color: #fff; position: relative; overflow: hidden;
+      }
+      .final-inner h2 { color: #fff; }
+      .final-inner .lead { color: rgba(255,255,255,.86); }
+      .final .hero-form { margin: 30px auto 0; justify-content: center; }
+      .final .hero-form input { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.28); color: #fff; }
+      .final .hero-form input::placeholder { color: rgba(255,255,255,.6); }
+      .final .btn-primary { background: #fff; color: var(--blue-deep); box-shadow: 0 10px 24px rgba(0,0,0,.18); }
+      .final-glow { position: absolute; width: 500px; height: 500px; border-radius: 50%; background: rgba(255,255,255,.12); filter: blur(40px); top: -200px; right: -120px; }
+      /* founders strip sits on the blue panel — needs light text */
+      .final .founders { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.32); color: #fff; }
+      .final .founders .badge { background: #fff; color: var(--blue-deep); }
+
+      footer { text-align: center; padding: 36px 24px 60px; color: var(--muted); font-size: 13px; }
+      .thanks { color: #fff; font-weight: 600; font-size: 18px; }
+
+      /* ---------- sign-up modal ---------- */
+      .modal-overlay {
+        position: fixed; inset: 0; z-index: 100; display: none;
+        align-items: center; justify-content: center; padding: 20px;
+        background: rgba(10,12,27,.55); backdrop-filter: blur(6px);
+      }
+      .modal-overlay.open { display: flex; animation: fadeIn .2s ease; }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      .modal {
+        position: relative; width: 100%; max-width: 440px; background: #fff;
+        border-radius: 26px; padding: 30px 28px; box-shadow: 0 30px 70px rgba(10,12,27,.35);
+        max-height: 92vh; overflow-y: auto; animation: popIn .26s cubic-bezier(.2,.9,.3,1.2);
+      }
+      @keyframes popIn { from { transform: translateY(16px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+      .modal-x {
+        position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border: none;
+        background: var(--bg); border-radius: 50%; font-size: 20px; line-height: 1; color: var(--muted);
+        cursor: pointer; transition: background .2s; }
+      .modal-x:hover { background: #e9ebf2; }
+      .modal-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; margin-bottom: 14px; }
+      .modal-brand .bolt { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+        background: linear-gradient(135deg,var(--blue),var(--blue-deep)); color: #fff; font-size: 14px; }
+      .modal h3 { font-size: 23px; letter-spacing: -.02em; }
+      .modal-sub { color: var(--muted); font-size: 14.5px; margin-top: 5px; line-height: 1.5; }
+      .mstep { display: none; }
+      .mstep.active { display: block; }
+
+      .role-cards { display: grid; gap: 12px; margin-top: 20px; }
+      .role-card {
+        text-align: left; background: #fff; border: 1.5px solid var(--line); border-radius: 16px;
+        padding: 18px; cursor: pointer; transition: border-color .18s, transform .18s, box-shadow .18s; }
+      .role-card:hover { border-color: var(--blue); transform: translateY(-2px); box-shadow: 0 12px 26px rgba(59,91,253,.14); }
+      .role-ic { font-size: 26px; display: block; margin-bottom: 8px; }
+      .role-card b { display: block; font-size: 16px; letter-spacing: -.01em; }
+      .role-card span { display: block; color: var(--muted); font-size: 13.5px; margin-top: 3px; line-height: 1.45; }
+
+      .modal-back { background: none; border: none; color: var(--muted); font-size: 14px; font-weight: 600;
+        cursor: pointer; padding: 0; margin-bottom: 12px; }
+      .modal-back:hover { color: var(--blue); }
+      .fld { display: block; margin-top: 14px; }
+      .fld > span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+      .fld input { width: 100%; font-family: var(--sans); font-size: 15px; color: var(--ink);
+        background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 13px 14px; outline: none;
+        transition: border-color .2s, box-shadow .2s; }
+      .fld input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(59,91,253,.12); background: #fff; }
+      .fld input.err { border-color: #e5484d; box-shadow: 0 0 0 4px rgba(229,72,77,.12); }
+      .leader-only { display: none; }
+      .leader-only.show { display: block; }
+      .size-row { display: flex; flex-wrap: wrap; gap: 8px; }
+      .size-pill { font-family: var(--sans); font-size: 13.5px; font-weight: 600; color: var(--ink);
+        background: var(--bg); border: 1.5px solid var(--line); border-radius: 999px; padding: 9px 14px; cursor: pointer;
+        transition: all .15s ease; }
+      .size-pill:hover { border-color: var(--blue); }
+      .size-pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+      .modal-submit { width: 100%; margin-top: 22px; }
+      .modal-err { color: #e5484d; font-size: 13px; font-weight: 600; margin-top: 10px; min-height: 1px; text-align: center; }
+      .success-ic { width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; font-size: 30px;
+        background: linear-gradient(135deg,var(--blue),var(--blue-deep)); color: #fff; margin: 6px auto 16px;
+        box-shadow: 0 12px 26px rgba(59,91,253,.4); }
+      .mstep[data-step="3"] { text-align: center; }
+      .modal-founders { background: #eef1ff; border-color: #d6deff; color: var(--ink); margin: 16px auto 22px; }
+      .modal-founders .badge { background: var(--blue); color: #fff; }
+      .mstep[data-step="3"] .btn-primary { width: 100%; }
+
+      /* ---------- hero v2: centered poster + corner stickers ---------- */
+      .hero2 { padding: 122px 0 34px; }
+      .hero2-inner { position: relative; z-index: 2; text-align: center; pointer-events: none; }
+      .hero2-inner .pill, .hero2-inner form, .hero2-inner input, .hero2-inner button, .hero2-inner .drag-hint { pointer-events: auto; }
+            .hero2 .outline { color: transparent; -webkit-text-stroke: 2px rgba(59,91,253,.45); }
+      .hflip-wrap { display: inline-block; text-align: left; min-width: 5.2em; }
+      .hflip { display: inline-block; transform-origin: 50% 100%; animation: hflipIn .45s cubic-bezier(.2,1.2,.4,1);
+        background: linear-gradient(120deg, var(--blue), #7c4dff 75%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+        /* extend the paint box past the baseline so j/g descenders aren't clipped */
+        padding-bottom: .18em; margin-bottom: -.18em; padding-right: .08em; margin-right: -.08em; }
+      .sub-center { margin: 32px auto 0; max-width: 540px; font-size: 17px; }
+      .sub-center b { color: var(--ink); font-weight: 600; }
+      .hero-form-center { margin: 28px auto 0; justify-content: center; }
+      .btn-xl { font-size: 17px; padding: 17px 32px; border-radius: 16px; }
+      .btn-ghost2 { font-family: var(--sans); font-weight: 600; background: #fff; color: var(--ink);
+        border: 1.5px solid var(--line); border-radius: 16px; cursor: pointer; transition: border-color .2s, color .2s, transform .15s; }
+      .btn-ghost2:hover { border-color: var(--blue); color: var(--blue); transform: translateY(-2px); }
+      .drag-hint { margin-top: 26px; font-size: 13.5px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+      .sticker { position: absolute; z-index: 3; background: #fff; color: var(--ink); border-radius: 18px; padding: 14px 16px;
+        border: 1px solid var(--line); box-shadow: 0 14px 34px rgba(10,12,27,.12); cursor: grab; user-select: none;
+        touch-action: none; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 15px; will-change: transform; }
+      .sticker:active { cursor: grabbing; }
+      @keyframes hflipIn { from { transform: translateY(55%) rotateX(70deg); opacity: 0; } to { transform: none; opacity: 1; } }
+      .sticker .se { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; }
+      .sticker small { display: block; font-weight: 600; font-size: 12px; color: var(--muted); margin-top: 2px; }
+      .sticker .tape { position: absolute; top: -10px; left: 50%; width: 54px; height: 18px;
+        transform: translateX(-50%) rotate(-3deg); background: rgba(59,91,253,.25); border-radius: 3px; }
+      /* corner event cards — draggable, with working +1/Join */
+      .hero2 .ecard { z-index: 1; user-select: none; transition: none; width: 252px; padding: 13px; }
+      .hero2 .ec-emoji { width: 38px; height: 38px; font-size: 19px; border-radius: 11px; }
+      .hero2 .ec-name { font-size: 13.5px; }
+      .hero2 .ec-place { font-size: 11.5px; }
+      .hero2 .ec-when { font-size: 11.5px; padding: 8px 10px; margin: 11px 0 10px; }
+      .hero2 .ec-dots i { width: 20px; height: 20px; }
+      .hero2 .ec-going { font-size: 10.5px; }
+      .hero2 .ec-plus { font-size: 11px; padding: 6px 9px; }
+      .hero2 .ec-join { font-size: 11px; padding: 6px 11px; }
+      .hero2 h1 { line-height: .97; }
+            .hero2 .ecard.p1 { top: 18%; left: 4%; transform: rotate(-6deg); }
+      .hero2 .ecard.p2 { top: 12%; right: 13.5%; transform: rotate(5deg); }
+      .hero2 .ecard.p3 { bottom: 7%; left: 6.5%; transform: rotate(4deg); }
+      .hero2 .ecard.p4 { bottom: 6%; right: 6%; transform: rotate(-5deg); }
+      @media (max-width: 880px) {
+        .hero2 .ecard { display: none; }
+        .hero2 .ecard.keep { display: block; top: auto; bottom: 10px; left: calc(50% - 152px); right: auto; }
+        .hero2 { min-height: auto; padding: 130px 0 190px; }
+        .hflip-wrap { min-width: 0; }
+        .hero2 h1 .outline { -webkit-text-stroke-width: 1.5px; }
+      }
+      @media (max-width: 560px) {
+        .hero-form-center { padding: 0 10px; }
+        .btn-xl { width: 100%; }
+      }
+
+      /* ---------- reveal animation ---------- */
+      .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.3,1); }
+      .reveal.in { opacity: 1; transform: none; }
+
+      /* ---------- fun & interactive layer ---------- */
+      .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 60;
+        background: linear-gradient(90deg, var(--blue), #7c4dff 60%, #ff7a59); border-radius: 0 3px 3px 0; }
+      #fx { position: fixed; inset: 0; z-index: 200; pointer-events: none; }
+
+      .ec-join { transition: background .2s, transform .12s ease; }
+      .ec-join:active { transform: scale(.88); }
+      .ec-join.joined { background: #1fc16b; }
+      .ec-dots i.you-dot { animation: dotPop .45s cubic-bezier(.2,1.6,.4,1); }
+      @keyframes dotPop { from { transform: scale(0); } 60% { transform: scale(1.35); } to { transform: scale(1); } }
+
+      .chip { cursor: pointer; user-select: none; transition: transform .15s cubic-bezier(.2,1.4,.4,1), border-color .15s, box-shadow .15s; }
+      .chip:hover { transform: translateY(-3px) scale(1.05); border-color: var(--blue); box-shadow: 0 10px 22px rgba(59,91,253,.14); }
+      .chip:active { transform: scale(.92); }
+
+      .logo .bolt { cursor: pointer; }
+      .logo .bolt.zap { animation: zap .5s ease; }
+      @keyframes zap {
+        0% { transform: rotate(0) scale(1); }
+        25% { transform: rotate(-14deg) scale(1.25); }
+        55% { transform: rotate(10deg) scale(1.15); }
+        100% { transform: rotate(0) scale(1); }
+      }
+
+      @media (max-width: 880px) {
+        .hero-grid { grid-template-columns: 1fr; }
+        .cluster { height: 626px; margin-top: 20px; }
+        .steps { grid-template-columns: 1fr; }
+        .lcards { grid-template-columns: 1fr; }
+        .leaders-inner { padding: 44px 28px; }
+        .hero { padding-top: 120px; }
+      }
+      @media (max-width: 560px) {
+        nav { padding: 12px 18px; }
+        .nav-cta { padding: 9px 14px; font-size: 13px; }
+        h1 { font-size: clamp(34px, 11vw, 46px); }
+        .sub { font-size: 16px; }
+        .hero-form { flex-direction: column; max-width: 100%; }
+        .hero-form .btn-primary { width: 100%; }
+        .final-inner { padding: 56px 22px; }
+        .ecard { width: 302px; } .ecard.c1 { left: 8px; } .ecard.c3 { left: 12px; } .ec-foot { gap: 8px; } .ec-going { font-size: 11.5px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress" id="progress"></div>
+    <canvas id="fx"></canvas>
+    <nav id="nav">
+      <div class="nav-inner">
+        <a class="logo" href="#"><span class="bolt">⚡</span> Kayel</a>
+        <button class="nav-cta" onclick="openSignup()">Join the waitlist</button>
+      </div>
+    </nav>
+
+    <!-- HERO (poster layout: Design-2 structure, Design-1 palette) -->
+    <header class="hero hero2">
+      <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+      <!-- draggable corner event cards (full cards: +1 & Join) -->
+      <div class="ecard p1" data-rot="-6">
+        <div class="ec-top"><span class="ec-emoji">🎾</span><div><div class="ec-name">Tennis Kakis</div><div class="ec-place">Bangsar</div></div></div>
+        <div class="ec-when">Sat · 9:00 AM · weekly rally</div>
+        <div class="ec-foot"><div class="ec-dots"><i style="background:#7c4dff"></i><i style="background:#1fc16b"></i><i style="background:#ff7a59"></i></div><span class="ec-going">friends going</span><button class="ec-plus">+1</button><button class="ec-join">Join</button></div>
+      </div>
+      <div class="ecard p2" data-rot="5">
+        <div class="ec-top"><span class="ec-emoji">🏃</span><div><div class="ec-name">Run Club</div><div class="ec-place">KLCC Park</div></div></div>
+        <div class="ec-when">Thu · 7:00 PM · easy 5K</div>
+        <div class="ec-foot"><div class="ec-dots"><i style="background:#3b5bfd"></i><i style="background:#ffb020"></i><i style="background:#e85d8a"></i></div><span class="ec-going">friends going</span><button class="ec-plus">+1</button><button class="ec-join">Join</button></div>
+      </div>
+      <div class="ecard p3 keep" data-rot="4">
+        <div class="ec-top"><span class="ec-emoji">🀄</span><div><div class="ec-name">Mahjong Nights</div><div class="ec-place">APW Bangsar</div></div></div>
+        <div class="ec-when">Fri · 8:00 PM · tiles &amp; teh</div>
+        <div class="ec-foot"><div class="ec-dots"><i style="background:#1fc16b"></i><i style="background:#3b5bfd"></i><i style="background:#7c4dff"></i></div><span class="ec-going">friends going</span><button class="ec-plus">+1</button><button class="ec-join">Join</button></div>
+      </div>
+      <div class="ecard p4" data-rot="-5">
+        <div class="ec-top"><span class="ec-emoji">🎀</span><div><div class="ec-name">Girls Only Club</div><div class="ec-place">Mont Kiara</div></div></div>
+        <div class="ec-when">Sun · 10:00 AM · brunch &amp; walk</div>
+        <div class="ec-foot"><div class="ec-dots"><i style="background:#e85d8a"></i><i style="background:#ffb020"></i><i style="background:#7c4dff"></i></div><span class="ec-going">friends going</span><button class="ec-plus">+1</button><button class="ec-join">Join</button></div>
+      </div>
+
+      <div class="wrap hero2-inner">
+        <span class="pill"><span class="dot"></span> Coming soon to Kuala Lumpur</span>
+        <h1>Your <span class="hflip-wrap"><span class="hflip" id="hword">tennis</span></span><br /><span class="outline">people are</span><br /><span class="grad">already out there.</span></h1>
+        <p class="sub sub-center">Kayel is where KL's communities post their sessions — and where you <b>show up</b>. Follow, tap +1, bring a friend.</p>
+        <form class="hero-form hero-form-center" onsubmit="return openSignup({email: this.email.value})">
+          <input name="email" type="email" placeholder="you@email.com" aria-label="Email" required />
+          <button class="btn-primary" type="submit">Get early access</button>
+        </form>
+        <p class="drag-hint">Bored on a random day? Join us and see what's happening in Kayel ⚡</p>
+      </div>
+    </header>
+
+    <!-- A COMMUNITY FOR EVERYTHING -->
+    <div class="marquee">
+      <div class="marquee-label">A community for everything</div>
+      <div class="track" id="track"></div>
+    </div>
+
+    <!-- FOR COMMUNITY LEADERS -->
+    <section class="leaders" id="leaders">
+      <div class="leaders-inner wrap reveal">
+        <p class="eyebrow" style="text-align:left">FOR COMMUNITY LEADERS</p>
+        <h2 style="text-align:left;margin-left:0">This isn’t just a platform.<br /><span class="grad">It’s a home for your community.</span></h2>
+        <p class="leaders-lead">You’ve built something real: a group of people who keep showing up. Kayel gives that community a permanent home, a place to post sessions, welcome new members, and keep everyone coming back. No more juggling five group chats and a spreadsheet.</p>
+        <button class="btn-primary leaders-cta" onclick="openSignup({role:'leader'})">Bring your community to Kayel →</button>
+      </div>
+
+      <div class="leaders-inner wrap reveal hosts-card">
+        <p class="eyebrow" style="text-align:left">FOR EVERYONE ELSE</p>
+        <h2 style="text-align:left;margin-left:0">Not a community leader?<br /><span class="grad">Just host something fun.</span></h2>
+        <p class="leaders-lead">A hike, a picnic, a Sunday futsal game — you don't need to run a community to bring people together. Post it, set the slots, and meet new people who are into the same things you are.</p>
+        <button class="btn-primary leaders-cta" onclick="openSignup({role:'member'})">Host your first session →</button>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="final" id="join">
+      <div class="final-inner reveal">
+        <div class="final-glow"></div>
+        <p class="eyebrow" style="color:rgba(255,255,255,.85)">⚡ EARLY ACCESS</p>
+        <h2>Find your people, meet your people.</h2>
+        <p class="lead">Your people are one tap away.</p>
+        <div class="founders"><span class="badge">FOUNDERS' CLUB</span> The first 200 to join shape what Kayel becomes, with early access &amp; a permanent founder badge.</div>
+        <form class="hero-form" onsubmit="return openSignup({email: this.email.value})">
+          <input name="email" type="email" placeholder="you@email.com" aria-label="Email" required />
+          <button class="btn-primary" type="submit">Join the waitlist</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- SIGN-UP MODAL -->
+    <div class="modal-overlay" id="signup" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="modal-x" id="modalX" aria-label="Close">×</button>
+
+        <!-- STEP 1: choose role -->
+        <div class="mstep" data-step="1">
+          <div class="modal-brand"><span class="bolt">⚡</span> Kayel</div>
+          <h3 id="modalTitle">Join the waitlist</h3>
+          <p class="modal-sub">First, how are you joining?</p>
+          <div class="role-cards">
+            <button type="button" class="role-card" data-role="member">
+              <span class="role-ic">🙋</span>
+              <b>Looking for my people</b>
+              <span>Join activities you love — and host your own small ones. Futsal, picnics, mahjong nights.</span>
+            </button>
+            <button type="button" class="role-card" data-role="leader">
+              <span class="role-ic">📣</span>
+              <b>I run a community</b>
+              <span>Give your group a home on Kayel and grow it.</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: details -->
+        <form class="mstep" data-step="2" id="signupForm" novalidate>
+          <button type="button" class="modal-back" id="modalBack">‹ Back</button>
+          <h3 id="formTitle">Almost there</h3>
+          <p class="modal-sub" id="formSub">Pop your details in and you’re on the list.</p>
+
+          <label class="fld"><span>Your name</span><input name="name" autocomplete="name" placeholder="Jane Tan" /></label>
+          <label class="fld"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="you@email.com" /></label>
+
+          <div class="leader-only">
+            <label class="fld"><span>Community name</span><input name="community" placeholder="e.g. KLCC Run Crew" /></label>
+            <div class="fld">
+              <span>Group size</span>
+              <div class="size-row" id="sizeRow">
+                <button type="button" class="size-pill" data-size="Just starting (<25)">Just starting</button>
+                <button type="button" class="size-pill" data-size="25–100">25–100</button>
+                <button type="button" class="size-pill" data-size="100–500">100–500</button>
+                <button type="button" class="size-pill" data-size="500+">500+</button>
+              </div>
+              <input type="hidden" name="groupSize" id="groupSize" />
+            </div>
+            <label class="fld"><span>Instagram</span><input name="instagram" placeholder="@yourcommunity" /></label>
+            <label class="fld"><span>Threads</span><input name="threads" placeholder="@yourcommunity" /></label>
+            <label class="fld"><span>WhatsApp / Telegram group link</span><input name="groupLink" placeholder="https://chat.whatsapp.com/…" /></label>
+          </div>
+
+          <button type="submit" class="btn-primary modal-submit" id="modalSubmit">Join the waitlist</button>
+          <p class="modal-err" id="modalErr"></p>
+        </form>
+
+        <!-- STEP 3: success -->
+        <div class="mstep" data-step="3">
+          <div class="success-ic">⚡</div>
+          <h3 id="successTitle">You’re on the list!</h3>
+          <p class="modal-sub" id="successSub">We’ll be in touch when Kayel opens in Kuala Lumpur.</p>
+          <div class="founders modal-founders"><span class="badge">FOUNDERS' CLUB</span> The first 200 to join get early access &amp; a permanent founder badge.</div>
+          <button type="button" class="btn-primary" id="modalDone">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>© 2026 Kayel · Made for meeting people in Kuala Lumpur</footer>
+
+    <script>
+      // ---- nav shrink + progress bar on scroll ----
+      const nav = document.getElementById("nav");
+      const progress = document.getElementById("progress");
+      addEventListener("scroll", () => {
+        nav.classList.toggle("scrolled", scrollY > 30);
+        const max = document.documentElement.scrollHeight - innerHeight;
+        progress.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
+      });
+
+      // ---- confetti / emoji particle engine ----
+      const fx = document.getElementById("fx");
+      const ctx = fx.getContext("2d");
+      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let parts = [], fxRunning = false;
+      const sizeFx = () => { fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio); };
+      sizeFx();
+      addEventListener("resize", sizeFx);
+      const FX_COLORS = ["#3b5bfd", "#7c4dff", "#ff7a59", "#1fc16b", "#ffb020", "#e85d8a"];
+      function burst(x, y, { count = 26, emoji = null, power = 7 } = {}) {
+        if (reduceMotion) return;
+        for (let i = 0; i < count; i++) {
+          const a = Math.random() * Math.PI * 2, v = (Math.random() * 0.6 + 0.4) * power;
+          parts.push({
+            x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - power * 0.5,
+            rot: Math.random() * Math.PI * 2, vr: (Math.random() - 0.5) * 0.3,
+            life: 1, decay: 0.012 + Math.random() * 0.012,
+            color: FX_COLORS[i % FX_COLORS.length],
+            emoji, size: emoji ? 14 + Math.random() * 8 : 5 + Math.random() * 5,
+          });
+        }
+        if (!fxRunning) { fxRunning = true; requestAnimationFrame(tickFx); }
+      }
+      function tickFx() {
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        parts = parts.filter((p) => p.life > 0);
+        for (const p of parts) {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.vx *= 0.985;
+          p.rot += p.vr; p.life -= p.decay;
+          ctx.save();
+          ctx.globalAlpha = Math.max(p.life, 0);
+          ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          if (p.emoji) { ctx.font = p.size + "px sans-serif"; ctx.textAlign = "center"; ctx.fillText(p.emoji, 0, 0); }
+          else { ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.62); }
+          ctx.restore();
+        }
+        if (parts.length) requestAnimationFrame(tickFx);
+        else { fxRunning = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+      }
+      const burstAt = (el, opts) => { const r = el.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, opts); };
+
+      // ---- playable Join & +1 on hero cards (distinct features: Join = you, +1 = bring a friend) ----
+      document.querySelectorAll(".ecard").forEach((card) => {
+        const joinBtn = card.querySelector(".ec-join");
+        const plusBtn = card.querySelector(".ec-plus");
+        const going = card.querySelector(".ec-going");
+        const dots = card.querySelector(".ec-dots");
+        const relabel = () => {
+          const j = joinBtn.classList.contains("joined"), p = plusBtn.classList.contains("added");
+          going.textContent = j && p ? "you +1 in!" : j ? "you're going!" : p ? "+1 sent!" : "friends going";
+        };
+        joinBtn.addEventListener("click", () => {
+          if (joinBtn.classList.toggle("joined")) {
+            const dot = document.createElement("i");
+            dot.className = "you-dot";
+            dot.style.background = "linear-gradient(135deg,#3b5bfd,#7c4dff)";
+            dots.appendChild(dot);
+            joinBtn.textContent = "✓";
+            burstAt(joinBtn, { count: 22, power: 6 });
+          } else {
+            dots.querySelector(".you-dot")?.remove();
+            joinBtn.textContent = "Join";
+          }
+          relabel();
+        });
+        plusBtn.addEventListener("click", () => {
+          if (plusBtn.classList.toggle("added")) {
+            const dot = document.createElement("i");
+            dot.className = "you-dot plus-dot";
+            dot.style.background = "linear-gradient(135deg,#e85d8a,#ff9ad5)";
+            dots.appendChild(dot);
+            burstAt(plusBtn, { count: 14, power: 5 });
+          } else {
+            dots.querySelector(".plus-dot")?.remove();
+          }
+          relabel();
+        });
+      });
+
+
+      // ---- magnetic CTA buttons ----
+      if (!reduceMotion) document.querySelectorAll(".btn-primary, .nav-cta").forEach((btn) => {
+        btn.addEventListener("mousemove", (e) => {
+          const r = btn.getBoundingClientRect();
+          const dx = (e.clientX - r.left - r.width / 2) / r.width;
+          const dy = (e.clientY - r.top - r.height / 2) / r.height;
+          btn.style.transform = `translate(${dx * 7}px, ${dy * 5 - 2}px)`;
+        });
+        btn.addEventListener("mouseleave", () => { btn.style.transform = ""; });
+      });
+
+      // ---- bolt logo easter egg ----
+      document.querySelector(".logo").addEventListener("click", (e) => {
+        e.preventDefault();
+        const bolt = document.querySelector(".logo .bolt");
+        bolt.classList.remove("zap"); void bolt.offsetWidth; bolt.classList.add("zap");
+        burstAt(bolt, { count: 14, emoji: "⚡", power: 6 });
+      });
+
+      // ---- marquee chips (duplicated for seamless loop) ----
+      const ACTS = [
+        ["🎾","Tennis"],["🏃","Run Club"],["🧘","Pilates"],["🥒","Pickleball"],["♟️","Chess"],
+        ["🀄","Mahjong"],["🏸","Badminton"],["⛳","Golf"],["🎨","Crafts"],["🧺","Picnics"],
+        ["💪","HYROX"],["🐱","Kitty Social"],["🚶","Social Walks"],["💻","Vibe Coding"],["🎀","Girls Only Club"],
+      ];
+      const track = document.getElementById("track");
+      const chipHtml = ACTS.map(([e,t]) => `<span class="chip"><span class="e">${e}</span>${t}</span>`).join("");
+      track.innerHTML = chipHtml + chipHtml; // two copies → -50% loop is seamless
+      // tap a chip → pop its emoji
+      track.addEventListener("click", (e) => {
+        const chip = e.target.closest(".chip");
+        if (!chip) return;
+        burstAt(chip, { count: 10, emoji: chip.querySelector(".e").textContent, power: 6 });
+      });
+
+      // ---- cursor-repel float: cards drift away when the cursor gets close ----
+      const repelCards = [...document.querySelectorAll(".hero2 .ecard")].map((el) => ({
+        el, ox: 0, oy: 0, tx: 0, ty: 0, rot: el.dataset.rot || 0,
+      }));
+      let rmx = -9999, rmy = -9999;
+      addEventListener("mousemove", (e) => { rmx = e.clientX; rmy = e.clientY; });
+      if (!reduceMotion && repelCards.length) (function repelTick() {
+        for (const c of repelCards) {
+          const r = c.el.getBoundingClientRect();
+          const cx = r.left + r.width / 2 - c.ox, cy = r.top + r.height / 2 - c.oy;
+          const dx = cx - rmx, dy = cy - rmy, d = Math.hypot(dx, dy), R = 280;
+          if (d < R && d > 1) { const f = ((R - d) / R) * 46; c.tx = (dx / d) * f; c.ty = (dy / d) * f; }
+          else { c.tx = 0; c.ty = 0; }
+          c.ox += (c.tx - c.ox) * 0.09; c.oy += (c.ty - c.oy) * 0.09;
+          c.el.style.transform = `translate(${c.ox.toFixed(1)}px, ${c.oy.toFixed(1)}px) rotate(${c.rot}deg)`;
+        }
+        requestAnimationFrame(repelTick);
+      })();
+
+      // ---- hero headline word flipper ----
+      const hword = document.getElementById("hword");
+      const HWORDS = ["tennis", "run club", "mahjong", "pilates", "pickleball", "chess", "craft", "golf", "HYROX"];
+      let hi = 0;
+      setInterval(() => {
+        hi = (hi + 1) % HWORDS.length;
+        hword.textContent = HWORDS[hi];
+        hword.classList.remove("hflip"); void hword.offsetWidth; hword.classList.add("hflip");
+      }, 1800);
+
+      // ---- scroll reveal ----
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+      }, { threshold: 0.15 });
+      document.querySelectorAll(".reveal").forEach((el, i) => { el.style.transitionDelay = (i % 4) * 0.06 + "s"; io.observe(el); });
+
+      // ---- Supabase client ----
+      const { createClient } = supabase;
+      const sb = createClient(
+        "https://uwrkiwryatmtirhlrpiz.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cmtpd3J5YXRtdGlyaGxycGl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyOTMzNDIsImV4cCI6MjA5Nzg2OTM0Mn0.Xdf1y87vPekNalgYDqnuQMSinSuzi6aTFm55j4OeniY"
+      );
+
+      const overlay = document.getElementById("signup");
+      const steps = [...overlay.querySelectorAll(".mstep")];
+      const form = document.getElementById("signupForm");
+      const leaderOnly = overlay.querySelector(".leader-only");
+      const errEl = document.getElementById("modalErr");
+      const submitBtn = document.getElementById("modalSubmit");
+      let role = "member";
+
+      const showStep = (n) => steps.forEach((s) => s.classList.toggle("active", +s.dataset.step === n));
+
+      function openSignup(opts = {}) {
+        errEl.textContent = "";
+        form.reset();
+        document.getElementById("groupSize").value = "";
+        overlay.querySelectorAll(".size-pill").forEach((p) => p.classList.remove("active"));
+        overlay.querySelectorAll(".fld input").forEach((i) => i.classList.remove("err"));
+        if (opts.email) form.email.value = opts.email;
+        overlay.classList.add("open");
+        overlay.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        if (opts.role) { selectRole(opts.role); } else { showStep(1); }
+        return false; // so inline form onsubmit doesn't navigate
+      }
+      function closeSignup() {
+        overlay.classList.remove("open");
+        overlay.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+      window.openSignup = openSignup;
+
+      function selectRole(r) {
+        role = r;
+        const leader = r === "leader", host = r === "host";
+        leaderOnly.classList.toggle("show", leader);
+        document.getElementById("formTitle").textContent = leader ? "Tell us about your community" : host ? "Let's get you hosting" : "Almost there";
+        document.getElementById("formSub").textContent = leader
+          ? "We’ll reach out about giving your community a home on Kayel."
+          : host
+          ? "We’ll ping you the moment you can post your first session."
+          : "Pop your details in and you’re on the list.";
+        submitBtn.textContent = leader ? "Request community access" : "Join the waitlist";
+        showStep(2);
+      }
+
+      // role cards
+      overlay.querySelectorAll(".role-card").forEach((c) =>
+        c.addEventListener("click", () => selectRole(c.dataset.role)));
+      // group-size pills (single-select)
+      overlay.querySelectorAll(".size-pill").forEach((p) =>
+        p.addEventListener("click", () => {
+          overlay.querySelectorAll(".size-pill").forEach((x) => x.classList.remove("active"));
+          p.classList.add("active");
+          document.getElementById("groupSize").value = p.dataset.size;
+        }));
+      // close interactions
+      document.getElementById("modalX").addEventListener("click", closeSignup);
+      document.getElementById("modalBack").addEventListener("click", () => { errEl.textContent = ""; showStep(1); });
+      document.getElementById("modalDone").addEventListener("click", closeSignup);
+      overlay.addEventListener("mousedown", (e) => { if (e.target === overlay) closeSignup(); });
+      addEventListener("keydown", (e) => { if (e.key === "Escape" && overlay.classList.contains("open")) closeSignup(); });
+
+      const flag = (input, bad) => input.classList.toggle("err", bad);
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errEl.textContent = "";
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.value.trim());
+        flag(form.name, !form.name.value.trim());
+        flag(form.email, !emailOk);
+        let missing = !form.name.value.trim() || !emailOk;
+        if (role === "leader") {
+          const sizeOk = !!document.getElementById("groupSize").value;
+          flag(form.community, !form.community.value.trim());
+          flag(form.instagram, !form.instagram.value.trim());
+          if (!form.community.value.trim() || !sizeOk || !form.instagram.value.trim()) missing = true;
+          if (!sizeOk) errEl.textContent = "Pick a group size, plus the fields outlined in red.";
+        }
+        if (missing) { if (!errEl.textContent) errEl.textContent = "Please fill in the fields outlined in red."; return; }
+
+        const data = { role, name: form.name.value.trim(), email: form.email.value.trim() };
+        if (role === "leader") Object.assign(data, {
+          community: form.community.value.trim(),
+          groupSize: document.getElementById("groupSize").value,
+          instagram: form.instagram.value.trim(),
+          threads: form.threads.value.trim(),
+          groupLink: form.groupLink.value.trim(),
+        });
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending…";
+        try {
+          const { error } = await sb.from("waitlist").insert([{
+            role,
+            name: data.name,
+            email: data.email,
+            community: data.community || null,
+            group_size: data.groupSize || null,
+            instagram: data.instagram || null,
+            threads: data.threads || null,
+            group_link: data.groupLink || null,
+          }]);
+          if (error) throw error;
+          document.getElementById("successSub").textContent = role === "leader"
+            ? "Thanks! We’ll be in touch about bringing your community onto Kayel."
+            : "We’ll be in touch when Kayel opens in Kuala Lumpur.";
+          showStep(3);
+          // celebrate! two staggered bursts from the bottom corners + one center
+          burst(innerWidth / 2, innerHeight * 0.35, { count: 60, power: 11 });
+          setTimeout(() => burst(innerWidth * 0.2, innerHeight * 0.8, { count: 40, power: 12 }), 180);
+          setTimeout(() => burst(innerWidth * 0.8, innerHeight * 0.8, { count: 40, power: 12 }), 320);
+        } catch (err) {
+          errEl.textContent = "Something went wrong. Please try again.";
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = role === "leader" ? "Request community access" : "Join the waitlist";
+        }
+      });
+    </script>
+  </body>
+</html>
