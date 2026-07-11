@@ -85,25 +85,19 @@
       .dhead b { font-size: 16px; letter-spacing: -.01em; }
       .dhead span { font-size: 14px; color: var(--muted); }
       .fcard {
-        display: grid; grid-template-columns: 1fr 86px; gap: 8px 14px;
         background: linear-gradient(170deg, var(--panel2), var(--panel));
-        border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-bottom: 12px;
+        border: 1px solid var(--line); border-radius: 18px; padding: 15px; margin-bottom: 12px;
         opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.8,.3,1);
       }
       .fcard.in { opacity: 1; transform: none; }
-      .fc-main { min-width: 0; }
-      .fc-time { font-size: 14px; font-weight: 600; color: var(--muted); }
-      .fc-title { font-size: 20px; font-weight: 700; letter-spacing: -.02em; margin: 3px 0 9px; }
-      .fc-by { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-      .fc-by .mini { flex: 0 0 auto; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; font-size: 11px;
-        background: rgba(77,107,255,.16); border: 1px solid rgba(77,107,255,.3); }
-      .fc-loc { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
-      .fc-loc svg { flex: 0 0 auto; opacity: .75; }
-      .fc-art { grid-column: 2; grid-row: 1; align-self: start; width: 86px; height: 86px; border-radius: 14px;
-        display: grid; place-items: center; font-size: 40px;
-        background: linear-gradient(150deg, rgba(77,107,255,.3), rgba(35,56,212,.08));
-        border: 1px solid rgba(77,107,255,.28); }
-      .fc-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 9px; margin-top: 4px; }
+      .fc-top { display: flex; align-items: center; gap: 11px; }
+      .fc-emoji { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 21px;
+        background: rgba(77,107,255,.12); border: 1px solid rgba(77,107,255,.25); }
+      .fc-name { font-weight: 700; font-size: 15px; }
+      .fc-place { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+      .fc-when { margin: 12px 0 11px; font-size: 12.5px; font-weight: 600; color: var(--blue-soft);
+        background: rgba(77,107,255,.08); border: 1px solid rgba(77,107,255,.16); border-radius: 10px; padding: 8px 11px; }
+      .fc-foot { display: flex; align-items: center; gap: 9px; }
       .fc-dots { display: flex; }
       .fc-dots i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--panel); margin-left: -8px; display: block; }
       .fc-dots i:first-child { margin-left: 0; }
@@ -224,49 +218,29 @@
 
         <div class="dhead"><b>16 Jul</b><span>Thursday</span></div>
         <div class="fcard">
-          <div class="fc-main">
-            <div class="fc-time">7:00 PM</div>
-            <div class="fc-title">Easy 5K</div>
-            <div class="fc-by"><span class="mini">🏃</span> By Run Club</div>
-            <div class="fc-loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> KLCC Park</div>
-          </div>
-          <div class="fc-art">🏃</div>
+          <div class="fc-top"><span class="fc-emoji">🏃</span><div><div class="fc-name">Run Club</div><div class="fc-place">KLCC Park</div></div></div>
+          <div class="fc-when">7:00 PM · easy 5K</div>
           <div class="fc-foot"><div class="fc-dots"><i style="background:#4d6bff"></i><i style="background:#ffb020"></i><i style="background:#ff6b9d"></i></div><span class="fc-going">friends going</span><button class="fc-plus">+1</button><button class="fc-join">Join</button></div>
         </div>
 
         <div class="dhead"><b>17 Jul</b><span>Friday</span></div>
         <div class="fcard">
-          <div class="fc-main">
-            <div class="fc-time">8:00 PM</div>
-            <div class="fc-title">Tiles &amp; Teh</div>
-            <div class="fc-by"><span class="mini">🀄</span> By Mahjong Nights</div>
-            <div class="fc-loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> APW Bangsar</div>
-          </div>
-          <div class="fc-art">🀄</div>
+          <div class="fc-top"><span class="fc-emoji">🀄</span><div><div class="fc-name">Mahjong Nights</div><div class="fc-place">APW Bangsar</div></div></div>
+          <div class="fc-when">8:00 PM · tiles &amp; teh</div>
           <div class="fc-foot"><div class="fc-dots"><i style="background:#37e08e"></i><i style="background:#4d6bff"></i><i style="background:#a78bff"></i></div><span class="fc-going">friends going</span><button class="fc-plus">+1</button><button class="fc-join">Join</button></div>
         </div>
 
         <div class="dhead"><b>18 Jul</b><span>Saturday</span></div>
         <div class="fcard">
-          <div class="fc-main">
-            <div class="fc-time">9:00 AM</div>
-            <div class="fc-title">Weekly Rally</div>
-            <div class="fc-by"><span class="mini">🎾</span> By Tennis Kakis</div>
-            <div class="fc-loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Bangsar</div>
-          </div>
-          <div class="fc-art">🎾</div>
+          <div class="fc-top"><span class="fc-emoji">🎾</span><div><div class="fc-name">Tennis Kakis</div><div class="fc-place">Bangsar</div></div></div>
+          <div class="fc-when">9:00 AM · weekly rally</div>
           <div class="fc-foot"><div class="fc-dots"><i style="background:#a78bff"></i><i style="background:#37e08e"></i><i style="background:#ff7a59"></i></div><span class="fc-going">friends going</span><button class="fc-plus">+1</button><button class="fc-join">Join</button></div>
         </div>
 
         <div class="dhead"><b>19 Jul</b><span>Sunday</span></div>
         <div class="fcard">
-          <div class="fc-main">
-            <div class="fc-time">10:00 AM</div>
-            <div class="fc-title">Brunch &amp; Walk</div>
-            <div class="fc-by"><span class="mini">🎀</span> By Girls Only Club</div>
-            <div class="fc-loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Mont Kiara</div>
-          </div>
-          <div class="fc-art">🎀</div>
+          <div class="fc-top"><span class="fc-emoji">🎀</span><div><div class="fc-name">Girls Only Club</div><div class="fc-place">Mont Kiara</div></div></div>
+          <div class="fc-when">10:00 AM · brunch &amp; walk</div>
           <div class="fc-foot"><div class="fc-dots"><i style="background:#ff6b9d"></i><i style="background:#ffb020"></i><i style="background:#4d6bff"></i></div><span class="fc-going">friends going</span><button class="fc-plus">+1</button><button class="fc-join">Join</button></div>
         </div>
 
