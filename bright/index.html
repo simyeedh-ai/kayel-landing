@@ -413,9 +413,10 @@
       // ---- scroll reveals (feed cards stagger in) ----
       const io = new IntersectionObserver((entries) => {
         entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
-      }, { threshold: 0.12 });
+      }, { threshold: 0.12, rootMargin: "0px 300% 0px 300%" });
       document.querySelectorAll(".fcard").forEach((el, i) => { el.classList.add(i % 2 ? "from-right" : "from-left"); el.style.transitionDelay = (i % 4) * 0.06 + "s"; io.observe(el); });
       document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+      setTimeout(() => document.querySelectorAll(".fcard, .reveal").forEach((el) => el.classList.add("in")), 3000);
 
       // ---- sticky thumb CTA: hide when waitlist is on screen ----
       const thumbBar = document.getElementById("thumbBar");
