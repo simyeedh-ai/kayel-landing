@@ -7,6 +7,14 @@
     <title>Kayel · find your people, meet your people</title>
     <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
     <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
+    <script>
+      // Phones get the mobile-first edition; ?desktop=1 opts out.
+      (function () {
+        if (matchMedia("(max-width: 719px)").matches && !location.search.includes("desktop")) {
+          location.replace(location.hostname.endsWith("github.io") ? "bright/" : "/landing-5.html");
+        }
+      })();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
       :root {
