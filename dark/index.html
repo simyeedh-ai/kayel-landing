@@ -87,8 +87,10 @@
       .fcard {
         background: linear-gradient(170deg, var(--panel2), var(--panel));
         border: 1px solid var(--line); border-radius: 18px; padding: 15px; margin-bottom: 12px;
-        opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.8,.3,1);
+        opacity: 0; transition: opacity .6s ease, transform .6s cubic-bezier(.25,.9,.3,1);
       }
+      .fcard.from-left { transform: translateX(-120%); }
+      .fcard.from-right { transform: translateX(120%); }
       .fcard.in { opacity: 1; transform: none; }
       .fc-top { display: flex; align-items: center; gap: 11px; }
       .fc-emoji { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 21px;
@@ -413,7 +415,7 @@
       const io = new IntersectionObserver((entries) => {
         entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
       }, { threshold: 0.12 });
-      document.querySelectorAll(".fcard").forEach((el, i) => { el.style.transitionDelay = (i % 4) * 0.08 + "s"; io.observe(el); });
+      document.querySelectorAll(".fcard").forEach((el, i) => { el.classList.add(i % 2 ? "from-right" : "from-left"); el.style.transitionDelay = (i % 4) * 0.06 + "s"; io.observe(el); });
       document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
       // ---- sticky thumb CTA: hide when waitlist is on screen ----
