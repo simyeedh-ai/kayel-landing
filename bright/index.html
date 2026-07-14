@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f8fb" />
+    <title>Kayel · your people are out there</title>
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+      :root {
+        --bg: #f7f8fb;
+        --panel: #ffffff;
+        --panel2: #ffffff;
+        --line: #e9ebf2;
+        --text: #0f1120;
+        --muted: #5b6075;
+        --blue: #3b5bfd;
+        --blue-soft: #2f49e0;
+        --yellow: #ffd23e;
+        --green: #1fc16b;
+        --pink: #e85d8a;
+        --sans: "General Sans", -apple-system, system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: var(--sans); background: var(--bg); color: var(--text);
+        overflow-x: hidden; -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; text-decoration: none; }
+      #fx { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
+
+      /* phone-width column, always — desktop gets the same story, centered */
+      .col { width: 100%; max-width: 520px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 2; }
+      @media (min-width: 720px) {
+        body::before { content: ""; position: fixed; inset: 0; z-index: 0;
+          background:
+            radial-gradient(700px at 15% 10%, rgba(59,91,253,.12), transparent 60%),
+            radial-gradient(600px at 85% 85%, rgba(255,122,89,.10), transparent 60%);
+        }
+      }
+
+      /* ---------- top bar ---------- */
+      .top {
+        position: sticky; top: 0; z-index: 50;
+        background: rgba(247,248,251,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid transparent; transition: border-color .3s;
+      }
+      .top.scrolled { border-bottom-color: var(--line); }
+      .top-inner { max-width: 520px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+      .logo { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 19px; letter-spacing: -.02em; }
+      .logo .bolt { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, var(--blue), #1f33c4);
+        display: grid; place-items: center; font-size: 16px; box-shadow: 0 0 18px rgba(59,91,253,.5); }
+      .logo .bolt.zap { animation: zap .5s ease; }
+      @keyframes zap { 25% { transform: rotate(-16deg) scale(1.25);} 60% { transform: rotate(9deg) scale(1.1);} }
+      .top-badge { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; color: var(--blue);        background: rgba(59,91,253,.07); border: 1px solid rgba(59,91,253,.22); border-radius: 999px; padding: 6px 12px; }
+
+      /* ---------- hero ---------- */
+      .hero { padding-top: 44px; padding-bottom: 10px; text-align: left; }
+      .kl-line { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; }
+      .kl-line .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
+      @keyframes pulse { 50% { opacity: .4; } }
+      h1 { font-size: clamp(38px, 11vw, 52px); line-height: 1.02; letter-spacing: -.03em; font-weight: 700; margin: 16px 0 14px; }
+      .hflip-wrap { display: inline-block; min-width: 5em; text-align: left; }
+      .hflip { display: inline-block; transform-origin: 50% 100%; animation: hflipIn .45s cubic-bezier(.2,1.2,.4,1);
+        background: linear-gradient(120deg, var(--blue-soft), var(--blue));
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+        padding-bottom: .16em; margin-bottom: -.16em; padding-right: .06em; margin-right: -.06em; }
+      @keyframes hflipIn { from { transform: translateY(55%) rotateX(70deg); opacity: 0; } to { transform: none; opacity: 1; } }
+      h1 .glow { background: linear-gradient(120deg, var(--blue), #7c4dff 60%, #ff7a59); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .hero-sub { font-size: 16px; line-height: 1.6; color: var(--muted); max-width: 420px; }
+      .hero-sub b { color: var(--text); font-weight: 600; }
+
+      /* ---------- live feed: timeline + event cards ---------- */
+      .feed { padding-top: 30px; padding-bottom: 6px; }
+      .feed-label { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+      .feed-label .live { color: var(--pink); }
+      .timeline { position: relative; padding-left: 22px; }
+      .timeline::before { content: ""; position: absolute; left: 4px; top: 14px; bottom: 26px; border-left: 2px dashed #d9ddeb; }
+      .dhead { position: relative; display: flex; align-items: baseline; gap: 8px; margin: 20px 0 10px; }
+      .dhead::before { content: ""; position: absolute; left: -22px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #c3c9dd; }
+      .dhead b { font-size: 16px; letter-spacing: -.01em; }
+      .dhead span { font-size: 14px; color: var(--muted); }
+      .fcard {
+        background: linear-gradient(170deg, var(--panel2), var(--panel));
+        border: 1px solid var(--line); border-radius: 18px; padding: 15px; margin-bottom: 12px; box-shadow: 0 8px 22px rgba(10,12,27,.05);
+        opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.8,.3,1);
+      }
+      .fcard.in { opacity: 1; transform: none; }
+      .fc-top { display: flex; align-items: center; gap: 11px; }
+      .fc-emoji { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 21px;
+        background: rgba(59,91,253,.12); border: 1px solid rgba(59,91,253,.25); }
+      .fc-name { font-weight: 700; font-size: 15px; }
+      .fc-place { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+      .fc-when { margin: 12px 0 11px; font-size: 12.5px; font-weight: 600; color: var(--blue-soft);
+        background: rgba(59,91,253,.08); border: 1px solid rgba(59,91,253,.16); border-radius: 10px; padding: 8px 11px; }
+      .fc-foot { display: flex; align-items: center; gap: 9px; }
+      .fc-dots { display: flex; }
+      .fc-dots i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--panel); margin-left: -8px; display: block; }
+      .fc-dots i:first-child { margin-left: 0; }
+      .fc-dots i.you-dot { animation: dotPop .45s cubic-bezier(.2,1.6,.4,1); }
+      @keyframes dotPop { from { transform: scale(0);} 60% { transform: scale(1.35);} to { transform: scale(1);} }
+      .fc-going { font-size: 11.5px; color: var(--muted); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .fc-plus, .fc-join { font-family: var(--sans); font-weight: 700; border: none; border-radius: 999px; cursor: pointer; min-height: 40px; }
+      .fc-plus { font-size: 12.5px; color: var(--blue-soft); background: rgba(59,91,253,.13); padding: 9px 14px; transition: background .2s, color .2s, transform .12s; }
+      .fc-plus:active { transform: scale(.9); }
+      .fc-plus.added { background: var(--pink); color: #14060c; }
+      .fc-join { font-size: 12.5px; color: #fff; background: linear-gradient(135deg, var(--blue), #1f33c4); padding: 9px 17px;
+        box-shadow: 0 0 16px rgba(59,91,253,.35); transition: transform .12s, box-shadow .2s; }
+      .fc-join:active { transform: scale(.9); }
+      .fc-join.joined { background: var(--green); color: #06281a; box-shadow: 0 0 16px rgba(55,224,142,.3); }
+
+      /* ---------- chips: native horizontal swipe ---------- */
+      .chips-zone { padding: 26px 0 8px; }
+      .chips-label { font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; padding: 0 20px; text-align: center; }
+      .chips-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 4px 20px 16px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+      .chips-scroll::-webkit-scrollbar { display: none; }
+      .chip { flex: 0 0 auto; scroll-snap-align: start; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+        background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 11px 18px;
+        font-size: 14px; font-weight: 600; cursor: pointer; user-select: none; min-height: 44px;
+        transition: border-color .2s, transform .15s cubic-bezier(.2,1.4,.4,1); }
+      .chip:active { transform: scale(.92); border-color: var(--blue); }
+      .chip .e { font-size: 16px; }
+
+      /* ---------- how it works ---------- */
+      .how { padding-top: 34px; padding-bottom: 8px; }
+      .how h2, .aud h2, .join h2 { font-size: clamp(26px, 7.4vw, 34px); letter-spacing: -.025em; line-height: 1.06; }
+      .how h2 .hl { background: linear-gradient(120deg, var(--blue-soft), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .steps { margin-top: 20px; display: grid; gap: 10px; }
+      .step { display: flex; gap: 14px; align-items: flex-start; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+      .step.feature { border-color: rgba(255,210,62,.35); background: linear-gradient(160deg, rgba(255,210,62,.07), var(--panel) 55%); }
+      .step .num { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+        font-weight: 700; font-size: 14px; color: #fff; background: linear-gradient(135deg, var(--blue), #1f33c4); }
+      .step.feature .num { background: var(--yellow); color: #241a00; }
+      .step b { display: block; font-size: 15.5px; margin-bottom: 3px; }
+      .step p { color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+      .step p strong { color: var(--text); }
+
+      /* ---------- audiences ---------- */
+      .aud { padding-top: 34px; padding-bottom: 8px; }
+      .aud-card { border-radius: 18px; padding: 22px 20px; margin-top: 14px; border: 1px solid var(--line); background: var(--panel); }
+      .aud-card.lead { border-color: rgba(59,91,253,.4); background: linear-gradient(160deg, rgba(59,91,253,.1), var(--panel) 60%); }
+      .aud-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--blue-soft); margin-bottom: 8px; }
+      .aud-card.host .aud-eyebrow { color: var(--yellow); }
+      .aud-card h3 { font-size: 19px; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 8px; }
+      .aud-card p { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+      .aud-cta { display: inline-block; margin-top: 14px; font-weight: 700; font-size: 13.5px; color: var(--blue-soft);
+        background: none; border: none; cursor: pointer; font-family: var(--sans); padding: 6px 0; }
+      .aud-card.host .aud-cta { color: var(--yellow); }
+
+      /* ---------- waitlist ---------- */
+      .join { padding-top: 40px; padding-bottom: 26px; text-align: center; }
+      .join .glow { color: var(--yellow); text-shadow: 0 0 30px rgba(255,210,62,.4); }
+      .join .sub2 { margin: 12px auto 0; color: var(--muted); font-size: 14.5px; line-height: 1.6; max-width: 380px; }
+      .jform { margin-top: 22px; display: grid; gap: 10px; }
+      .jform input { font-family: var(--sans); font-size: 16px; color: var(--text); background: var(--panel);
+        border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 17px; outline: none; min-height: 52px;
+        transition: border-color .2s, box-shadow .2s; }
+      .jform input::placeholder { color: #565b74; }
+      .jform input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(59,91,253,.16); }
+      .jform input.err { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(255,107,157,.16); }
+      .btn-main { font-family: var(--sans); font-weight: 700; font-size: 16px; color: #fff; border: none; border-radius: 14px;
+        padding: 17px; min-height: 54px; cursor: pointer; background: linear-gradient(135deg, var(--blue), #1f33c4);
+        box-shadow: 0 0 26px rgba(59,91,253,.4); transition: transform .12s, box-shadow .2s; }
+      .btn-main:active { transform: scale(.98); }
+      .jmsg { margin-top: 12px; font-size: 13.5px; font-weight: 600; min-height: 18px; }
+      .jmsg.ok { color: var(--green); }
+      .jmsg.bad { color: var(--pink); }
+      .founders { margin-top: 18px; display: inline-flex; align-items: center; gap: 9px; flex-wrap: wrap; justify-content: center;
+        background: rgba(59,91,253,.06); border: 1px solid rgba(59,91,253,.18); border-radius: 14px; padding: 10px 14px;
+        font-size: 12.5px; font-weight: 600; color: var(--text); }
+      .founders .fb { background: var(--blue); color: #fff; font-weight: 700; font-size: 10.5px; border-radius: 999px; padding: 4px 9px; letter-spacing: .04em; }
+
+      footer { text-align: center; padding: 10px 20px 120px; color: #9aa0b4; font-size: 12px; }
+
+      /* ---------- sticky thumb CTA ---------- */
+      .thumb-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
+        background: linear-gradient(transparent, rgba(247,248,251,.92) 34%); pointer-events: none;
+        transition: transform .35s cubic-bezier(.2,.8,.3,1), opacity .3s; }
+      .thumb-bar.hide { transform: translateY(110%); opacity: 0; }
+      .thumb-inner { max-width: 520px; margin: 0 auto; pointer-events: auto; }
+      .thumb-btn { width: 100%; font-family: var(--sans); font-weight: 700; font-size: 16px; color: #fff; border: none; border-radius: 16px;
+        padding: 17px; min-height: 56px; cursor: pointer; background: linear-gradient(135deg, var(--blue), #1f33c4);
+        box-shadow: 0 8px 30px rgba(59,91,253,.45); display: flex; align-items: center; justify-content: center; gap: 8px; }
+      .thumb-btn:active { transform: scale(.98); }
+
+      .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.3,1); }
+      .reveal.in { opacity: 1; transform: none; }
+      @media (prefers-reduced-motion: reduce) {
+        .fcard, .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="fx"></canvas>
+
+    <div class="top" id="top">
+      <div class="top-inner">
+        <a class="logo" id="logo"><span class="bolt">⚡</span> Kayel</a>
+        <span class="top-badge">KL · SOON</span>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <header class="hero col">
+      <div class="kl-line"><span class="dot"></span> Kuala Lumpur · coming soon</div>
+      <h1>Your <span class="hflip-wrap"><span class="hflip" id="hword">tennis</span></span><br />people are already <span class="glow">out there.</span></h1>
+      <p class="hero-sub">Kayel is where KL's communities post their sessions — and where you <b>show up</b>. Follow, tap +1, bring a friend.</p>
+    </header>
+
+    <!-- LIVE FEED -->
+    <section class="feed col">
+      <div class="feed-label"><span class="live">●</span> happening this week</div>
+      <div class="timeline">
+
+        <div class="dhead"><b>16 Jul</b><span>Thursday</span></div>
+        <div class="fcard">
+          <div class="fc-top"><span class="fc-emoji">🏃</span><div><div class="fc-name">Run Club</div><div class="fc-place">KLCC Park</div></div></div>
+          <div class="fc-when">7:00 PM · easy 5K</div>
+          <div class="fc-foot"><div class="fc-dots"><i style="background:#4d6bff"></i><i style="background:#ffb020"></i><i style="background:#ff6b9d"></i></div><span class="fc-going">friends going</span><button class="fc-plus">+1</button><button class="fc-join">Join</button></div>
+        </div>
+
+        <div class="dhead"><b>17 Jul</b><span>Friday</span></div>
+        <div class="fcard">
+          <div class="fc-top"><span class="fc-emoji">🀄</span><div><div class="fc-name">Mahjong Nights</div><div class="fc-place">APW Bangsar</div></div></div>
+          <div class="fc-when">8:00 PM · tiles &amp; teh</div>
+          <div class="fc-foot"><div class="fc-dots"><i style="background:#37e08e"></i><i style="background:#4d6bff"></i><i style="background:#a78bff"></i></div><span class="fc-going">friends going</span><button class="fc-plus">+1</button><button class="fc-join">Join</button></div>
+        </div>
+
+        <div class="dhead"><b>18 Jul</b><span>Saturday</span></div>
+        <div class="fcard">
+          <div class="fc-top"><span class="fc-emoji">🎾</span><div><div class="fc-name">Tennis Kakis</div><div class="fc-place">Bangsar</div></div></div>
+          <div class="fc-when">9:00 AM · weekly rally</div>
+          <div class="fc-foot"><div class="fc-dots"><i style="background:#a78bff"></i><i style="background:#37e08e"></i><i style="background:#ff7a59"></i></div><span class="fc-going">friends going</span><button class="fc-plus">+1</button><button class="fc-join">Join</button></div>
+        </div>
+
+        <div class="dhead"><b>19 Jul</b><span>Sunday</span></div>
+        <div class="fcard">
+          <div class="fc-top"><span class="fc-emoji">🎀</span><div><div class="fc-name">Girls Only Club</div><div class="fc-place">Mont Kiara</div></div></div>
+          <div class="fc-when">10:00 AM · brunch &amp; walk</div>
+          <div class="fc-foot"><div class="fc-dots"><i style="background:#ff6b9d"></i><i style="background:#ffb020"></i><i style="background:#4d6bff"></i></div><span class="fc-going">friends going</span><button class="fc-plus">+1</button><button class="fc-join">Join</button></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CHIPS -->
+    <section class="chips-zone">
+      <div class="chips-label">A community for everything</div>
+      <div class="chips-scroll" id="chips"></div>
+    </section>
+
+    <!-- HOW -->
+    <section class="how col reveal">
+      <h2>Three taps between you<br />and <span class="hl">your new crew.</span></h2>
+      <div class="steps">
+        <div class="step"><span class="num">1</span><div><b>Find your thing</b><p>Tennis, run clubs, mahjong, crafts — every community in KL posts their next session here.</p></div></div>
+        <div class="step feature"><span class="num">⚡</span><div><b>Tap +1</b><p><strong>The signature move.</strong> One tap and you're in — and you can +1 a friend along. No forms, no group-chat ping-pong.</p></div></div>
+        <div class="step"><span class="num">3</span><div><b>Show up</b><p>See who's going before you arrive. Say hi. Leave with new people in your corner.</p></div></div>
+      </div>
+    </section>
+
+    <!-- AUDIENCES -->
+    <section class="aud col reveal">
+      <h2>Whoever you are,<br /><span class="hl">there's a spot for you.</span></h2>
+      <div class="aud-card lead">
+        <div class="aud-eyebrow">FOR COMMUNITY LEADERS</div>
+        <h3>Give your community a home.</h3>
+        <p>You've built a group that keeps showing up. Kayel replaces the five group chats and the spreadsheet — post sessions, welcome new faces, watch it grow.</p>
+        <button class="aud-cta" onclick="focusJoin()">Bring your community →</button>
+      </div>
+      <div class="aud-card host">
+        <div class="aud-eyebrow">FOR EVERYONE ELSE</div>
+        <h3>Not a community leader? Just host something fun.</h3>
+        <p>A hike, a picnic, a Sunday futsal game — post it, set the slots, and meet new people who are into the same things you are.</p>
+        <button class="aud-cta" onclick="focusJoin()">Host your first session →</button>
+      </div>
+    </section>
+
+    <!-- WAITLIST -->
+    <section class="join col reveal" id="join">
+      <h2>Be first in line. <span class="glow">⚡</span></h2>
+      <p class="sub2">Kayel opens in Kuala Lumpur soon. Drop your details and we'll ping you when it's time.</p>
+      <form class="jform" id="jform" novalidate>
+        <input name="name" placeholder="Your name" autocomplete="name" />
+        <input name="email" type="email" placeholder="you@email.com" autocomplete="email" inputmode="email" />
+        <button class="btn-main" type="submit" id="jbtn">Join the waitlist</button>
+      </form>
+      <p class="jmsg" id="jmsg"></p>
+      <div class="founders"><span class="fb">FOUNDERS' CLUB</span> First 200 get early access + a founder badge.</div>
+    </section>
+
+    <footer>© 2026 Kayel · Made for meeting people in Kuala Lumpur</footer>
+
+    <!-- STICKY THUMB CTA -->
+    <div class="thumb-bar" id="thumbBar">
+      <div class="thumb-inner">
+        <button class="thumb-btn" onclick="focusJoin()">Get early access ⚡</button>
+      </div>
+    </div>
+
+    <script>
+      // ---- top bar border on scroll ----
+      const topBar = document.getElementById("top");
+      addEventListener("scroll", () => topBar.classList.toggle("scrolled", scrollY > 20));
+
+      // ---- headline flipper ----
+      const hword = document.getElementById("hword");
+      const HWORDS = ["tennis", "run club", "mahjong", "pilates", "pickleball", "chess", "craft", "golf", "HYROX"];
+      let hi = 0;
+      setInterval(() => {
+        hi = (hi + 1) % HWORDS.length;
+        hword.textContent = HWORDS[hi];
+        hword.classList.remove("hflip"); void hword.offsetWidth; hword.classList.add("hflip");
+      }, 1800);
+
+      // ---- swipeable chips ----
+      const ACTS = [
+        ["🎾","Tennis"],["🏃","Run Club"],["🧘","Pilates"],["🥒","Pickleball"],["♟️","Chess"],
+        ["🀄","Mahjong"],["🏸","Badminton"],["⛳","Golf"],["🎨","Crafts"],["🧺","Picnics"],
+        ["💪","HYROX"],["🐱","Kitty Social"],["🚶","Social Walks"],["💻","Vibe Coding"],["🎀","Girls Only Club"],
+      ];
+      const chips = document.getElementById("chips");
+      chips.innerHTML = ACTS.map(([e,t]) => `<span class="chip"><span class="e">${e}</span>${t}</span>`).join("");
+
+      // ---- confetti (tap-driven) ----
+      const fx = document.getElementById("fx");
+      const ctx = fx.getContext("2d");
+      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let parts = [], fxOn = false;
+      const sizeFx = () => { fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); };
+      sizeFx(); addEventListener("resize", sizeFx);
+      const FX_COLORS = ["#3b5bfd", "#7c4dff", "#ff7a59", "#1fc16b", "#ffb020", "#e85d8a"];
+      function burst(x, y, { count = 22, power = 7, emoji = null } = {}) {
+        if (reduceMotion) return;
+        for (let i = 0; i < count; i++) {
+          const a = Math.random() * Math.PI * 2, v = (Math.random() * 0.6 + 0.4) * power;
+          parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - power * 0.5,
+            rot: Math.random() * Math.PI * 2, vr: (Math.random() - 0.5) * 0.3,
+            life: 1, decay: 0.013 + Math.random() * 0.013,
+            color: FX_COLORS[i % FX_COLORS.length], emoji,
+            size: emoji ? 14 + Math.random() * 7 : 4.5 + Math.random() * 4.5 });
+        }
+        if (!fxOn) { fxOn = true; requestAnimationFrame(tickFx); }
+      }
+      function tickFx() {
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        parts = parts.filter((p) => p.life > 0);
+        for (const p of parts) {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.vx *= 0.985; p.rot += p.vr; p.life -= p.decay;
+          ctx.save(); ctx.globalAlpha = Math.max(p.life, 0);
+          ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          if (p.emoji) { ctx.font = p.size + "px sans-serif"; ctx.textAlign = "center"; ctx.fillText(p.emoji, 0, 0); }
+          else { ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.62); }
+          ctx.restore();
+        }
+        if (parts.length) requestAnimationFrame(tickFx);
+        else { fxOn = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+      }
+      const burstAt = (el, opts) => { const r = el.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, opts); };
+
+      // chips pop their emoji on tap
+      chips.addEventListener("click", (e) => {
+        const chip = e.target.closest(".chip");
+        if (!chip) return;
+        burstAt(chip, { count: 10, emoji: chip.querySelector(".e").textContent, power: 6 });
+      });
+
+      // logo easter egg
+      document.getElementById("logo").addEventListener("click", () => {
+        const bolt = document.querySelector(".logo .bolt");
+        bolt.classList.remove("zap"); void bolt.offsetWidth; bolt.classList.add("zap");
+        burstAt(bolt, { count: 12, emoji: "⚡", power: 6 });
+      });
+
+      // ---- playable feed cards ----
+      document.querySelectorAll(".fcard").forEach((card) => {
+        const joinBtn = card.querySelector(".fc-join");
+        const plusBtn = card.querySelector(".fc-plus");
+        const going = card.querySelector(".fc-going");
+        const dots = card.querySelector(".fc-dots");
+        const relabel = () => {
+          const j = joinBtn.classList.contains("joined"), p = plusBtn.classList.contains("added");
+          going.textContent = j && p ? "you +1 in!" : j ? "you're going!" : p ? "+1 sent!" : "friends going";
+        };
+        joinBtn.addEventListener("click", () => {
+          if (joinBtn.classList.toggle("joined")) {
+            const dot = document.createElement("i");
+            dot.className = "you-dot";
+            dot.style.background = "linear-gradient(135deg,#4d6bff,#7c8fff)";
+            dots.appendChild(dot);
+            joinBtn.textContent = "✓";
+            burstAt(joinBtn, { count: 20, power: 6 });
+          } else { dots.querySelector(".you-dot")?.remove(); joinBtn.textContent = "Join"; }
+          relabel();
+        });
+        plusBtn.addEventListener("click", () => {
+          if (plusBtn.classList.toggle("added")) {
+            const dot = document.createElement("i");
+            dot.className = "you-dot plus-dot";
+            dot.style.background = "linear-gradient(135deg,#ff6b9d,#ff9ad5)";
+            dots.appendChild(dot);
+            burstAt(plusBtn, { count: 12, power: 5 });
+          } else { dots.querySelector(".plus-dot")?.remove(); }
+          relabel();
+        });
+      });
+
+      // ---- scroll reveals (feed cards stagger in) ----
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+      }, { threshold: 0.12 });
+      document.querySelectorAll(".fcard").forEach((el, i) => { el.style.transitionDelay = (i % 4) * 0.08 + "s"; io.observe(el); });
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+      // ---- sticky thumb CTA: hide when waitlist is on screen ----
+      const thumbBar = document.getElementById("thumbBar");
+      const joinSec = document.getElementById("join");
+      new IntersectionObserver((entries) => {
+        thumbBar.classList.toggle("hide", entries[0].isIntersecting);
+      }, { threshold: 0.25 }).observe(joinSec);
+      function focusJoin() {
+        joinSec.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => document.querySelector("#jform input[name=name]").focus({ preventScroll: true }), 550);
+      }
+      window.focusJoin = focusJoin;
+
+      // ---- waitlist (same Supabase table; anon key is public by design) ----
+      const sb = supabase.createClient(
+        "https://uwrkiwryatmtirhlrpiz.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cmtpd3J5YXRtdGlyaGxycGl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyOTMzNDIsImV4cCI6MjA5Nzg2OTM0Mn0.Xdf1y87vPekNalgYDqnuQMSinSuzi6aTFm55j4OeniY"
+      );
+      const jform = document.getElementById("jform");
+      const jmsg = document.getElementById("jmsg");
+      const jbtn = document.getElementById("jbtn");
+      jform.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        jmsg.className = "jmsg";
+        const name = jform.name.value.trim();
+        const email = jform.email.value.trim();
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        jform.name.classList.toggle("err", !name);
+        jform.email.classList.toggle("err", !emailOk);
+        if (!name || !emailOk) { jmsg.textContent = "Fill in your name and a real email — promise we don't spam."; jmsg.classList.add("bad"); return; }
+        jbtn.disabled = true; jbtn.textContent = "Sending…";
+        try {
+          const { error } = await sb.from("waitlist").insert([{ role: "member", name, email }]);
+          if (error) throw error;
+          jmsg.textContent = "You're on the list! See you out there ⚡";
+          jmsg.classList.add("ok");
+          jform.reset();
+          burst(innerWidth / 2, innerHeight * 0.45, { count: 50, power: 10 });
+          setTimeout(() => burst(innerWidth * 0.25, innerHeight * 0.7, { count: 34, power: 10 }), 170);
+          setTimeout(() => burst(innerWidth * 0.75, innerHeight * 0.7, { count: 34, power: 10 }), 320);
+        } catch (err) {
+          jmsg.textContent = "Something went wrong — try again in a sec.";
+          jmsg.classList.add("bad");
+        } finally {
+          jbtn.disabled = false; jbtn.textContent = "Join the waitlist";
+        }
+      });
+    </script>
+  </body>
+</html>
